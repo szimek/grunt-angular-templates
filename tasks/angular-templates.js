@@ -33,6 +33,7 @@ module.exports = function(grunt) {
       angular:    'angular',
       bootstrap:  bootstrapper,
       concat:     null,
+      usemin:     null,
       htmlmin:    {},
       module:     this.target,
       prefix:     '',
@@ -103,7 +104,37 @@ module.exports = function(grunt) {
 
         grunt.log.writeln('Added ' + file.dest.cyan + ' to ' + ('concat:' + options.concat).yellow);
       }
+
+      if (options.usemin) {
+        var _ = grunt.util._;
+        var target = grunt.config('concat.generated');
+        var prefix = '.tmp/concat/';
+
+        if (!target) {
+          grunt.fail.fatal('Concat target not found: ' + 'generated'.red);
+
+          return false;
+        }
+
+        var files = _.find(target.files, function (item) {
+          return item.dest === prefix + options.usemin;
+        });
+
+        if (!files) {
+          grunt.fail.fatal('Concat destination file not found: ' + options.usemin.red);
+
+          return false;
+        }
+
+        files.src.push(file.dest);
+
+        // Re-save processed concat target
+        grunt.config('concat', {
+          generated: { files: target.files }
+        });
+
+        grunt.log.writeln('Added ' + file.dest.cyan + ' to ' + ('concat:generated:files:dest:' + options.usemin).yellow);
+      }
     });
   });
-
 };
